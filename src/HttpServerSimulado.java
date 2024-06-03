@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 public class HttpServerSimulado {
     private final int port;
@@ -38,16 +38,19 @@ public class HttpServerSimulado {
         }
 
         private String handleRequest() {
-            try {
-                // Simular un tiempo de respuesta aleatorio
-                Thread.sleep(ThreadLocalRandom.current().nextInt(100, 500));
+            // Realizar varias operaciones intensivas en CPU
+            BigInteger factorialResult = factorial(10000);
+            double matrixSumResult = sumLargeMatrix(1000);
+            double primeSumResult = sumPrimes(10000);
+            String processedString = processLargeString(10000);
 
-                // Añadir una operación intensiva en CPU (calcular el factorial de un número grande)
-                BigInteger result = factorial(10000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            return "Response from server";
+            // Generar la respuesta HTML
+            return "<html><body><h1>Response from server</h1>" +
+                    "<p>Factorial calculated: " + factorialResult + "</p>" +
+                    "<p>Matrix sum calculated: " + matrixSumResult + "</p>" +
+                    "<p>Prime sum calculated: " + primeSumResult + "</p>" +
+                    "<p>Processed string length: " + processedString.length() + "</p>" +
+                    "</body></html>";
         }
 
         private BigInteger factorial(int n) {
@@ -56,6 +59,50 @@ public class HttpServerSimulado {
                 result = result.multiply(BigInteger.valueOf(i));
             }
             return result;
+        }
+
+        private double sumLargeMatrix(int size) {
+            double[][] matrix = new double[size][size];
+            Random random = new Random();
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    matrix[i][j] = random.nextDouble();
+                }
+            }
+            double sum = 0;
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    sum += matrix[i][j];
+                }
+            }
+            return sum;
+        }
+
+        private double sumPrimes(int n) {
+            double sum = 0;
+            for (int i = 2; i <= n; i++) {
+                if (isPrime(i)) {
+                    sum += i;
+                }
+            }
+            return sum;
+        }
+
+        private boolean isPrime(int num) {
+            if (num <= 1) return false;
+            for (int i = 2; i <= Math.sqrt(num); i++) {
+                if (num % i == 0) return false;
+            }
+            return true;
+        }
+
+        private String processLargeString(int size) {
+            StringBuilder sb = new StringBuilder(size);
+            Random random = new Random();
+            for (int i = 0; i < size; i++) {
+                sb.append((char) ('A' + random.nextInt(26)));
+            }
+            return sb.toString().replaceAll("A", "Z");
         }
     }
 }
