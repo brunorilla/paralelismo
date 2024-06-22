@@ -7,19 +7,20 @@ import java.io.OutputStream;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.Random;
+import java.util.concurrent.*;
 
-public class HttpServerSimulado {
+public class HttpServerConcurrente {
     private final int port;
     private HttpServer server;
 
-    public HttpServerSimulado(int port) {
+    public HttpServerConcurrente(int port) {
         this.port = port;
     }
 
     public void start() throws IOException {
         server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/handleRequest", new RequestHandler());
-        server.setExecutor(null); // creates a default executor
+        server.setExecutor(null); // Utiliza un executor predeterminado
         server.start();
     }
 
@@ -30,21 +31,32 @@ public class HttpServerSimulado {
     private static class RequestHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            String response = handleRequest();
-            exchange.sendResponseHeaders(200, response.getBytes().length);
-            OutputStream os = exchange.getResponseBody();
-            os.write(response.getBytes());
-            os.close();
+            try {
+                String response = handleRequest();
+                exchange.sendResponseHeaders(200, response.getBytes().length);
+                OutputStream os = exchange.getResponseBody();
+                os.write(response.getBytes());
+                os.close();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
         }
 
-        private String handleRequest() {
-            // Realizar varias operaciones intensivas en CPU
-            BigInteger factorialResult = factorial(10000);
-            double matrixSumResult = sumLargeMatrix(1000);
-            double primeSumResult = sumPrimes(10000);
-            String processedString = processLargeString(10000);
+        private String handleRequest() throws InterruptedException, ExecutionException {
+            ExecutorService executor = Executors.newCachedThreadPool();
 
-            // Generar la respuesta HTML
+            Future<BigInteger> factorialFuture = executor.submit(() -> factorial(10000));
+            Future<Double> matrixSumFuture = executor.submit(() -> sumLargeMatrix(1000));
+            Future<Double> primeSumFuture = executor.submit(() -> sumPrimes(10000));
+            Future<String> processedStringFuture = executor.submit(() -> processLargeString(10000));
+
+            BigInteger factorialResult = factorialFuture.get();
+            double matrixSumResult = matrixSumFuture.get();
+            double primeSumResult = primeSumFuture.get();
+            String processedString = processedStringFuture.get();
+
+            executor.shutdown();
+
             return "<html><body><h1>Response from server</h1>" +
                     "<p>Factorial calculated: " + factorialResult + "</p>" +
                     "<p>Matrix sum calculated: " + matrixSumResult + "</p>" +
