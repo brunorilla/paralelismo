@@ -51,8 +51,6 @@ public class HttpServerParalelo {
             return true;
         }
 
-
-
         private String handleRequest() throws InterruptedException, ExecutionException {
             ForkJoinPool pool = new ForkJoinPool();
 
