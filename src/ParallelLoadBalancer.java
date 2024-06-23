@@ -22,7 +22,7 @@ public class ParallelLoadBalancer implements LoadBalancer{
     }
 
     public void distributeRequests(List<String> requests) throws InterruptedException, ExecutionException {
-        monitoring.startMonitoring();
+        //monitoring.startMonitoring();
         pool.submit(() -> requests.parallelStream().forEach(request -> {
             try {
                 System.out.println(sendRequest(getNextServerUrl(), request));
@@ -32,8 +32,8 @@ public class ParallelLoadBalancer implements LoadBalancer{
         })).get();
 
         pool.shutdown();
-        monitorExecutor.shutdown();
-        monitoring.stopMonitoring();
+        //monitorExecutor.shutdown();
+        //monitoring.stopMonitoring();
     }
 
     private synchronized String getNextServerUrl() {

@@ -51,8 +51,8 @@ public class Main {
             );
 
             // Concurrent Load Balancer execution
-            executeLoadBalancer(new ConcurrentLoadBalancer(concurrentServerUrls), requests, "Concurrent");
-            executeLoadBalancer(new ParallelLoadBalancer(parallelServerUrls), requests, "Parallel");
+            executeLoadBalancer(new ConcurrentLoadBalancer(concurrentServerUrls), requests, "Concurrente");
+            executeLoadBalancer(new ParallelLoadBalancer(parallelServerUrls), requests, "Paralelo");
             // Stop all servers
             stopServers(concurrentServer1, concurrentServer2, concurrentServer3, concurrentServer4);
             stopServers(parallelServer1, parallelServer2, parallelServer3, parallelServer4);
@@ -63,13 +63,13 @@ public class Main {
 
     private static void executeLoadBalancer(LoadBalancer loadBalancer, List<String> requests, String type)
             throws InterruptedException, ExecutionException {
-        System.out.println("Starting " + type + " load balancer execution.");
+        System.out.println("Arranca ejecución del Load balancer " + type);
         loadBalancer.startMonitoring();
         long startTime = System.currentTimeMillis();
         loadBalancer.distributeRequests(requests);
         long endTime = System.currentTimeMillis();
         loadBalancer.stopMonitoring();
-        System.out.println(type + " execution time: " + (endTime - startTime) + " ms");
+        System.out.println(type + " tiempo de ejecución: " + (endTime - startTime) + " ms");
     }
 
     private static void stopServers(HttpServerConcurrente... servers) {

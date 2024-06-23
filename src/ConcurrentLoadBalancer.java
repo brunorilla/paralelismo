@@ -22,7 +22,7 @@ public class ConcurrentLoadBalancer implements LoadBalancer {
     }
 
     public void distributeRequests(List<String> requests) throws InterruptedException, ExecutionException {
-        monitoring.startMonitoring();
+        //monitoring.startMonitoring();
         List<Future<String>> futures = new ArrayList<>();
 
         for (String request : requests) {
@@ -34,8 +34,8 @@ public class ConcurrentLoadBalancer implements LoadBalancer {
             System.out.println(future.get());
         }
         executor.shutdown();
-        monitorExecutor.shutdown();
-        monitoring.stopMonitoring();
+        //monitorExecutor.shutdown();
+        //monitoring.stopMonitoring();
     }
 
     private synchronized String getNextServerUrl() {
