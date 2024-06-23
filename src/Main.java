@@ -47,29 +47,53 @@ public class Main {
                     "Request11", "Request12", "Request13", "Request14", "Request15",
                     "Request16", "Request17", "Request18", "Request19", "Request20",
                     "Request21", "Request22", "Request23", "Request24", "Request25",
-                    "Request26", "Request27", "Request28", "Request29", "Request30"
-            );
+                    "Request26", "Request27", "Request28", "Request29", "Request30",
+                    "Request31", "Request32", "Request33", "Request34", "Request35",
+                    "Request36", "Request37", "Request38", "Request39", "Request40",
+                    "Request41", "Request42", "Request43", "Request44", "Request45",
+                    "Request46", "Request47", "Request48", "Request49", "Request50",
+                    "Request51", "Request52", "Request53", "Request54",
+                    "Request55", "Request56", "Request57", "Request58", "Request59",
+                    "Request60", "Request61", "Request62", "Request63", "Request64",
+                    "Request65", "Request66", "Request67", "Request68", "Request69"
+                    );
+
+            System.gc();
 
             // Concurrent Load Balancer execution
-            executeLoadBalancer(new ConcurrentLoadBalancer(concurrentServerUrls), requests, "Concurrente");
-            executeLoadBalancer(new ParallelLoadBalancer(parallelServerUrls), requests, "Paralelo");
-            // Stop all servers
+            long timeConcurrent = executeLoadBalancer(new ConcurrentLoadBalancer(concurrentServerUrls), requests, "Concurrente");
             stopServers(concurrentServer1, concurrentServer2, concurrentServer3, concurrentServer4);
+
+            System.gc();
+            try {
+                Thread.sleep(10000); // 10 segundos de pausa
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+
+            long timeParallel = executeLoadBalancer(new ParallelLoadBalancer(parallelServerUrls), requests, "Paralelo");
             stopServers(parallelServer1, parallelServer2, parallelServer3, parallelServer4);
+
+
+            double speedUp = (double) timeConcurrent / timeParallel;
+            System.out.println("Speed-Up (Concurrente vs Paralelo): " + speedUp);
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private static void executeLoadBalancer(LoadBalancer loadBalancer, List<String> requests, String type)
+    private static long executeLoadBalancer(LoadBalancer loadBalancer, List<String> requests, String type)
             throws InterruptedException, ExecutionException {
-        System.out.println("Arranca ejecución del Load balancer " + type);
-        loadBalancer.startMonitoring();
+        System.out.println("Arranca ejecución del Load Balancer " + type);
+        //loadBalancer.startMonitoring();
         long startTime = System.currentTimeMillis();
         loadBalancer.distributeRequests(requests);
         long endTime = System.currentTimeMillis();
-        loadBalancer.stopMonitoring();
+        //loadBalancer.stopMonitoring();
         System.out.println(type + " tiempo de ejecución: " + (endTime - startTime) + " ms");
+        return endTime - startTime;
     }
 
     private static void stopServers(HttpServerConcurrente... servers) {

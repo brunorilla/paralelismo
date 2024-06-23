@@ -17,7 +17,7 @@ public class ConcurrentLoadBalancer implements LoadBalancer {
         this.serverUrls = serverUrls;
         this.executor = Executors.newFixedThreadPool(serverUrls.size());
         this.monitorExecutor = Executors.newScheduledThreadPool(1);
-        startMonitoring();
+        //startMonitoring();
         this.monitoring = new EnhancedMonitoring();
     }
 

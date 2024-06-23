@@ -18,7 +18,7 @@ public class ParallelLoadBalancer implements LoadBalancer{
         this.pool = new ForkJoinPool();
         this.monitorExecutor = Executors.newScheduledThreadPool(1);
         this.monitoring = new EnhancedMonitoring();
-        startMonitoring();
+        //startMonitoring();
     }
 
     public void distributeRequests(List<String> requests) throws InterruptedException, ExecutionException {
@@ -59,7 +59,7 @@ public class ParallelLoadBalancer implements LoadBalancer{
             int activeThreads = Thread.activeCount();
             int availableProcessors = Runtime.getRuntime().availableProcessors();
             double systemLoad = ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage();
-            System.out.println("Available processors (cores): " + availableProcessors);
+            System.out.println("processors (cores): " + availableProcessors);
             System.out.println("Active threads: " + activeThreads);
             System.out.println("System load average: " + systemLoad);
         }, 0, 1, TimeUnit.SECONDS);
