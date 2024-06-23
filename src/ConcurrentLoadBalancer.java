@@ -6,21 +6,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
-public class ConcurrentLoadBalancer {
+public class ConcurrentLoadBalancer implements LoadBalancer {
     private List<String> serverUrls;
     private int currentServerIndex = 0;
     private ExecutorService executor;
     private ScheduledExecutorService monitorExecutor;
+    private EnhancedMonitoring monitoring;
 
     public ConcurrentLoadBalancer(List<String> serverUrls) {
         this.serverUrls = serverUrls;
         this.executor = Executors.newFixedThreadPool(serverUrls.size());
         this.monitorExecutor = Executors.newScheduledThreadPool(1);
         startMonitoring();
+        this.monitoring = new EnhancedMonitoring();
     }
 
     public void distributeRequests(List<String> requests) throws InterruptedException, ExecutionException {
+        monitoring.startMonitoring();
         List<Future<String>> futures = new ArrayList<>();
+
         for (String request : requests) {
             String serverUrl = getNextServerUrl();
             futures.add(executor.submit(() -> sendRequest(serverUrl, request)));
@@ -31,6 +35,7 @@ public class ConcurrentLoadBalancer {
         }
         executor.shutdown();
         monitorExecutor.shutdown();
+        monitoring.stopMonitoring();
     }
 
     private synchronized String getNextServerUrl() {
@@ -51,7 +56,7 @@ public class ConcurrentLoadBalancer {
         }
     }
 
-    private void startMonitoring() {
+    public void startMonitoring() {
         monitorExecutor.scheduleAtFixedRate(() -> {
             int activeThreads = Thread.activeCount();
             int availableProcessors = Runtime.getRuntime().availableProcessors();
@@ -60,5 +65,9 @@ public class ConcurrentLoadBalancer {
             System.out.println("Active threads: " + activeThreads);
             System.out.println("System load average: " + systemLoad);
         }, 0, 1, TimeUnit.SECONDS);
+    }
+
+    public void stopMonitoring() {
+        monitorExecutor.shutdown();
     }
 }

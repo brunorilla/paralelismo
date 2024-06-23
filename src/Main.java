@@ -51,13 +51,8 @@ public class Main {
             );
 
             // Concurrent Load Balancer execution
-            ConcurrentLoadBalancer concurrentLoadBalancer = new ConcurrentLoadBalancer(concurrentServerUrls);
-            executeConcurrentLoadBalancer(concurrentLoadBalancer, requests, "Concurrent");
-
-            // Parallel Load Balancer execution
-            ParallelLoadBalancer parallelLoadBalancer = new ParallelLoadBalancer(parallelServerUrls);
-            executeParallelLoadBalancer(parallelLoadBalancer, requests, "Parallel");
-
+            executeLoadBalancer(new ConcurrentLoadBalancer(concurrentServerUrls), requests, "Concurrent");
+            executeLoadBalancer(new ParallelLoadBalancer(parallelServerUrls), requests, "Parallel");
             // Stop all servers
             stopServers(concurrentServer1, concurrentServer2, concurrentServer3, concurrentServer4);
             stopServers(parallelServer1, parallelServer2, parallelServer3, parallelServer4);
@@ -66,19 +61,14 @@ public class Main {
         }
     }
 
-    private static void executeConcurrentLoadBalancer(ConcurrentLoadBalancer loadBalancer, List<String> requests, String type) throws InterruptedException, ExecutionException {
+    private static void executeLoadBalancer(LoadBalancer loadBalancer, List<String> requests, String type)
+            throws InterruptedException, ExecutionException {
         System.out.println("Starting " + type + " load balancer execution.");
+        loadBalancer.startMonitoring();
         long startTime = System.currentTimeMillis();
         loadBalancer.distributeRequests(requests);
         long endTime = System.currentTimeMillis();
-        System.out.println(type + " execution time: " + (endTime - startTime) + " ms");
-    }
-
-    private static void executeParallelLoadBalancer(ParallelLoadBalancer loadBalancer, List<String> requests, String type) throws InterruptedException, ExecutionException {
-        System.out.println("Starting " + type + " load balancer execution.");
-        long startTime = System.currentTimeMillis();
-        loadBalancer.distributeRequests(requests);
-        long endTime = System.currentTimeMillis();
+        loadBalancer.stopMonitoring();
         System.out.println(type + " execution time: " + (endTime - startTime) + " ms");
     }
 
